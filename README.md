@@ -1,8 +1,10 @@
 # test-npm-package
 
+## Create a github repository
+## Clone the repository
 ## create igonore files
-    -   .gitignore
-    -   .npmignore
+    .gitignore
+    .npmignore
 
 ## setup
 
@@ -70,11 +72,10 @@ Found 1 error in src/index.ts:1
 ## CI using github Action
 ### configuration
 ```yml
-//.github/workflows
-//main.yml
+//.github/workflows/main.yml
 name: CI
 on:
-  push:
+  push:G
     branches:
       - "**"
 
@@ -93,37 +94,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint && pnpm run build && pnpm run test
-
-//release.yml
-name: Publish
-on:
-  push:
-    branches:
-      - "main"
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: "pnpm"
-
-      - run: pnpm install --frozen-lockfile
-      - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: pnpm run release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 ### Execute CI
+```
+    pnp run ci
+```
