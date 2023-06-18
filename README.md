@@ -1,9 +1,3 @@
-# test-npm-package
-
-## Create a github repository
-
-## Clone the repository
-
 ## Create project package configuration
 
 ```bash
