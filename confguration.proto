@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package configurationDef;
+
+message Timestamp {
+  // Represents seconds of UTC time since Unix epoch
+  // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+  // 9999-12-31T23:59:59Z inclusive.
+  int64 seconds = 1;
+
+  // Non-negative fractions of a second at nanosecond resolution. Negative
+  // second values with fractions must still have non-negative nanos values
+  // that count forward in time. Must be from 0 to 999,999,999
+  // inclusive.
+  int32 nanos = 2;
+}
+
+enum PhysicalDimension {
+  TIME = 0;
+  LENGTH = 1;
+  WEIGHT = 2;
+  TEMPERATURE = 3;
+  SPEED = 4;
+  AREA = 5;
+  VOLUME = 6;
+  ROTATION_SPEED = 7;
+  VOLTAGE = 8;
+  CURRENT = 9;
+  FREQUENCY = 10;
+  FORCE = 11;
+}
+
+enum DigitalEvent {
+  NONE = 0;
+  HIGH = 1;
+  LOW = 2;
+}
+
+enum TimerDataType {
+  FREQUENCY_VALUE = 0;
+  PULSE_COUNTER_PERIOD = 1;
+  PULSE_COUNTER_TOTAL = 2;
+}
+
+message MQTTConfiguration {
+  string username = 1;
+  string password = 2;
+}
+
+message AnalogInputConfiguration {
+  float offset = 2;
+  float multiplier = 3;
+  PhysicalDimension phy_dimension = 4;
+  optional float min_alarm_threshold = 5;
+  optional float max_alarm_threshold = 6;
+  AnalogRange range = 7;
+}
+
+message DigitalInputConfiguration {
+  optional string high_label = 2;
+  optional string low_label = 3;
+  optional DigitalEvent alarm = 4;
+  optional DigitalEvent error = 5;
+  optional TimerDataType type = 6;
+  optional PhysicalDimension phy_dimension = 7;
+  optional float min_alarm_threshold = 8;
+  optional float max_alarm_threshold = 9;
+}
+
+message TemperatureInputConfiguration {
+  float A_parameter = 2;
+  float B_parameter = 3;
+  float C_parameter = 4;
+  optional float min_alarm_threshold = 5;
+  optional float max_alarm_threshold = 6;
+}
+
+enum AnalogRange {
+  ZERO_5V = 0;
+  ZERO5_5V = 1;
+}
+
+message InputConfiguration
+{
+  uint32 input_id = 1;                                                    //Source ID table
+  string label = 2;                                                       //Massimo 20 caratteri
+  uint32 acquisition_period = 3;
+  bool enable = 4;
+  oneof Configuration {
+    AnalogInputConfiguration analog_input_configuration = 5;				      //type = ANALOG
+    DigitalInputConfiguration digital_input_configuration = 6;				    //type = DIGITAL
+    TemperatureInputConfiguration temperature_input_configuration = 7;		//type = TEMP
+  }
+}
+
+message Configuration {
+  optional uint32 nonce = 1;                                                   //Valore random generato dal mittente
+  string pin_level_0 = 2;
+  string pin_level_1 = 3;
+
+  optional MQTTConfiguration MQTT_conf = 4;
+
+  optional uint32 mqtt_periodic_send_powered = 5;                     //Secondi
+  optional uint32 mqtt_periodic_send_battery = 6;                     //Secondi
+
+  uint32 gnss_acquisition_period_powered = 7;                         //Secondi
+  uint32 gnss_acquisition_period_battery = 8;                         //Secondi
+
+  uint32 working_time_source_id = 9;                                  //Source ID
+
+  float working_width = 10;                                           //Metri
+
+  optional Timestamp timestamp = 11;                                           //Setta orologio interno
+
+  float time_zone = 12;
+
+  bool en_savings_time = 13;                                            //Abilita cambio ora legale/solare
+
+  uint32 internal_temperature_acquisition_period = 14;
+
+  reserved 15 to 19;
+
+  repeated InputConfiguration input_configuration = 20;  			        //one for each input
+}
+
+message Statistics {
+  Timestamp timestamp = 1;
+  reserved 2 to 9;
+
+  uint32 current_session_working_time = 10;
+  uint32 current_daily_working_time = 11;
+  uint32 total_working_time = 12;
+  repeated uint32 daily_working_times_vector = 13;
+  repeated uint32 work_times_vector = 14;                   
+  reserved 15 to 19;
+  
+  uint32 last_hour_worked_area = 20;
+  uint32 current_session_worked_area = 21;
+  uint32 current_daily_worked_area = 22;
+  uint32 total_worked_area = 23;
+  repeated uint32 daily_working_time_slots = 24;            
+  repeated uint32 worked_area_by_time_slots = 25;             
+  reserved 26 to 29;
+  
+  repeated uint32 working_speed = 30;                       
+  reserved 31 to 39;
+  
+  repeated uint32 gear_box_rpm = 40;
+}
